@@ -55,4 +55,8 @@ router.get('/users/current', passportMiddleware('jwt') /*passport.authenticate('
     return res.json(req.user)
 })
 
+router.get('*', (req, res) => {
+    res.status(404).send({ message: "No está disponible el recurso solicitado." })
+})
+
 module.exports = router

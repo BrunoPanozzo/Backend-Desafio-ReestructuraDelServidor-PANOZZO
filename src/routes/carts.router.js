@@ -6,6 +6,22 @@ const { validateProduct } = require('../middlewares/product.middleware')
 
 const router = Router()
 
+router.param('pid', (req, res, next, value) => {
+    const isValid = /^[a-z0-9]+$/.test(value)
+    if (!isValid)
+        return res.status(400).send('Parámetro inválido')
+    req.pid = value
+    next()
+})
+
+router.param('cid', (req, res, next, value) => {
+    const isValid = /^[a-z0-9]+$/.test(value)
+    if (!isValid)
+        return res.status(400).send('Parámetro inválido')
+    req.cid = value
+    next()
+})
+
 //endpoints
 
 router.get('/', async (req, res) => {
@@ -24,7 +40,7 @@ router.get('/', async (req, res) => {
 router.get('/:cid', validateCart, async (req, res) => {
     try {
         const cartManager = req.app.get('cartManager')
-        let cartId = req.params.cid;
+        let cartId = req.cid;
 
         let cartById = await cartManager.getCartById(cartId);
 
@@ -62,8 +78,8 @@ router.post('/', validateNewCart, async (req, res) => {
 router.post('/:cid/products/:pid', validateCart, validateProduct, async (req, res) => {
     try {
         const cartManager = req.app.get('cartManager')
-        let cartId = req.params.cid;
-        let prodId = req.params.pid;
+        let cartId = req.cid;
+        let prodId = req.pid;
         let quantity = 1;
 
         await cartManager.addProductToCart(cartId, prodId, quantity);
@@ -79,7 +95,7 @@ router.post('/:cid/products/:pid', validateCart, validateProduct, async (req, re
 router.put('/:cid', validateCart, async (req, res) => {
     try {
         const cartManager = req.app.get('cartManager')
-        let cartId = req.params.cid;
+        let cartId = req.cid;
         const { products }= req.body;
 
         await cartManager.updateCartProducts(cartId, products);
@@ -95,8 +111,8 @@ router.put('/:cid', validateCart, async (req, res) => {
 router.put('/:cid/products/:pid', validateCart, validateProduct, async (req, res) => {
     try {
         const cartManager = req.app.get('cartManager')
-        let cartId = req.params.cid;
-        let prodId = req.params.pid;
+        let cartId = req.cid;
+        let prodId = req.pid;
         const quantity = +req.body.quantity;        
         
         const result = await cartManager.addProductToCart(cartId, prodId, quantity);
@@ -119,7 +135,7 @@ router.put('/:cid/products/:pid', validateCart, validateProduct, async (req, res
 router.delete('/:cid', validateCart, async (req, res) => {
     try {
         const cartManager = req.app.get('cartManager')
-        let cartId = req.params.cid;
+        let cartId = req.cid;
 
         await cartManager.deleteCart(cartId)
 
@@ -139,8 +155,8 @@ router.delete('/:cid', validateCart, async (req, res) => {
 router.delete('/:cid/products/:pid', validateCart, validateProduct, async (req, res) => {
     try {
         const cartManager = req.app.get('cartManager')
-        let cartId = req.params.cid;
-        let prodId = req.params.pid;
+        let cartId = req.cid;
+        let prodId = req.pid;
 
         const result = await cartManager.deleteProductFromCart(cartId, prodId);
 
@@ -155,6 +171,10 @@ router.delete('/:cid/products/:pid', validateCart, validateProduct, async (req, 
     catch (err) {
         return res.status(500).json({ message: err.message })
     }
+})
+
+router.get('*', (req, res) => {
+    res.status(404).send({ message: "No está disponible el recurso solicitado." })
 })
 
 module.exports = router;

@@ -7,6 +7,22 @@ const router = Router()
 
 //endpoints de Products y Carts
 
+router.param('pid', (req, res, next, value) => {
+    const isValid = /^[a-z0-9]+$/.test(value)
+    if (!isValid)
+        return res.status(400).send('Parámetro inválido')
+    req.pid = value
+    next()
+})
+
+router.param('cid', (req, res, next, value) => {
+    const isValid = /^[a-z0-9]+$/.test(value)
+    if (!isValid)
+        return res.status(400).send('Parámetro inválido')
+    req.cid = value
+    next()
+})
+
 router.get('/products', userIsLoggedIn, async (req, res) => {
     try {
         const productManager = req.app.get('productManager')
@@ -36,7 +52,7 @@ router.get('/products/detail/:pid', userIsLoggedIn, async (req, res) => {
         const productManager = req.app.get('productManager')
         const cartManager = req.app.get('cartManager')
 
-        const prodId = req.params.pid
+        const prodId = req.pid
         const product = await productManager.getProductById(prodId)
         
         const carts = await cartManager.getCarts()   
@@ -64,7 +80,7 @@ router.get('/products/addcart/:pid', userIsLoggedIn, async (req, res) => {
         const productManager = req.app.get('productManager')
         const cartManager = req.app.get('cartManager')
 
-        const prodId = req.params.pid
+        const prodId = req.pid
         const product = await productManager.getProductById(prodId)
         
         //agrego una unidad del producto al primer carrito que siempre existe
@@ -84,7 +100,7 @@ router.get('/products/addcart/:pid', userIsLoggedIn, async (req, res) => {
 router.get('/carts/:cid', userIsLoggedIn, async (req, res) => {
     try {
         const cartManager = req.app.get('cartManager')
-        const cartId = req.params.cid
+        const cartId = req.cid
         const cart = await cartManager.getCartById(cartId)               
 
         // console.log(JSON.stringify(cart.products, null, '\t'))
@@ -192,6 +208,10 @@ router.get('/profile', userIsLoggedIn,  (req, res) => {
             email: user.email
         }
     })
+})
+
+router.get('*', (req, res) => {
+    res.status(404).send({ message: "No está disponible el recurso solicitado." })
 })
 
 module.exports = router;

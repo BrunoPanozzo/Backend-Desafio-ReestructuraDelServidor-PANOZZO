@@ -5,6 +5,14 @@ const router = Router()
 
 //endpoints
 
+router.param('pid', (req, res, next, value) => {
+    const isValid = /^[a-z0-9]+$/.test(value)
+    if (!isValid)
+        return res.status(400).send('Parámetro inválido')
+    req.pid = value
+    next()
+})
+
 router.get('/', async (req, res) => {
     try {
         const productManager = req.app.get('productManager')
@@ -42,7 +50,7 @@ router.get('/', async (req, res) => {
 router.get('/:pid', validateProduct, async (req, res) => {
     try {
         const productManager = req.app.get('productManager')
-        const prodId = req.params.pid
+        const prodId = req.pid
 
         const product = await productManager.getProductById(prodId)
 
@@ -107,7 +115,7 @@ router.post('/create', validateNewProduct, async (req, res) => {
 router.put('/:pid', validateUpdateProduct, async (req, res) => {
     try {
         const productManager = req.app.get('productManager')
-        const prodId = req.params.pid
+        const prodId = req.pid
         const productUpdated = req.body
 
         //valido el ID que hasta el momento no fue evaluado
@@ -136,7 +144,7 @@ router.put('/:pid', validateUpdateProduct, async (req, res) => {
 router.delete('/:pid', validateProduct, async (req, res) => {
     try {
         const productManager = req.app.get('productManager')
-        const prodId = req.params.pid
+        const prodId = req.pid
 
         const product = await productManager.getProductById(prodId)
         if (product) {
@@ -153,6 +161,10 @@ router.delete('/:pid', validateProduct, async (req, res) => {
     catch (err) {
         return res.status(500).json({ message: err.message })
     }
+})
+
+router.get('*', (req, res) => {
+    res.status(404).send({ message: "No está disponible el recurso solicitado." })
 })
 
 module.exports = router

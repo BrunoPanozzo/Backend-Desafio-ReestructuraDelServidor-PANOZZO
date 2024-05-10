@@ -104,4 +104,8 @@ router.get('/current', (req, res) => {
     return res.redirect('/profile')
 })
 
+router.get('*', (req, res) => {
+    res.status(404).send({ message: "No está disponible el recurso solicitado." })
+})
+
 module.exports = router
