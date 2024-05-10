@@ -1,0 +1,9 @@
+# dependencies
+/node_modules
+
+# packages
+/package-lock.json
+
+# config files
+# src/config/google.private.js
+# src/config/github.private.js
