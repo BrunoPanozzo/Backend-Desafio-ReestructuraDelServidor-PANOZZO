@@ -1,9 +1,8 @@
 const jwt = require('jsonwebtoken')
-
-const PRIVATE_KEY = 'sdkjfhds88sdf989s8daf897sad'
+const config = require('../config/config')
 
 const generateToken = user => {
-    const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: '24h' })
+    const token = jwt.sign({ user }, config.SECRET, { expiresIn: '24h' })
     return token
 }
 
@@ -14,7 +13,7 @@ const verifyToken = (req, res, next) => {
     }
 
     const [, token] = authHeader.split(' ')  //su formato es Bearer sdsdfklgsdklfg, x eso hago split
-    jwt.verify(token, PRIVATE_KEY, (err, signedPayload) => {
+    jwt.verify(token, config.SECRET, (err, signedPayload) => {
         if (err) {
             return res.status(403).json({ error: 'Token de acceso inválido!' })
         }
@@ -24,4 +23,4 @@ const verifyToken = (req, res, next) => {
     })
 }
 
-module.exports = { generateToken, verifyToken, secretCode: PRIVATE_KEY}
+module.exports = { generateToken, verifyToken }

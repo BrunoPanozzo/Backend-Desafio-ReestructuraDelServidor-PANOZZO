@@ -5,9 +5,7 @@ const { Strategy, ExtractJwt } = require('passport-jwt')
 const googleStrategy = require('passport-google-oauth20')
 const userModel = require('../dao/models/user.model')
 const { hashPassword, isValidPassword } = require('../utils/hashing')
-const { secretCode } = require('../utils/jwt')
-const { clientID, clientSecret, callbackURL } = require('./github.private')
-const { clientIDGoogle, clientSecretGoogle, callbackUrlGoogle } = require('./google.private')
+const config = require('./config')
 
 const LocalStrategy = localStrategy.Strategy
 const GithubStrategy = githubStrategy.Strategy
@@ -21,7 +19,7 @@ const initializeStrategy = () => {
     //defino un middleware para extraer el current user a partir de un token guardado en una cookie
     passport.use('jwt', new JwtStrategy({
         jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
-        secretOrKey: secretCode
+        secretOrKey: config.SECRET //secretCode
     }, async (jwtPayload, done) => {
         try {
             return done(null, jwtPayload.user)
@@ -150,9 +148,9 @@ const initializeStrategy = () => {
     }))
 
     passport.use('github', new GithubStrategy({
-        clientID,
-        clientSecret,
-        callbackURL
+        clientID: config.CLIENT_ID, 
+        clientSecret: config.CLIENT_SECRET,
+        callbackURL: config.CALLBACK_URL
     }, async (_accessToken, _refreshToken, profile, done) => {
         try {
             const user = await userModel.findOne({ email: profile._json.email })
@@ -181,9 +179,9 @@ const initializeStrategy = () => {
     }))
     
     passport.use('google', new GoogleStrategy({
-        clientID: clientIDGoogle,
-        clientSecret: clientSecretGoogle,
-        callbackURL: callbackUrlGoogle
+        clientID: config.CLIENT_ID_GOOGLE,
+        clientSecret: config.CLIENT_SECRET_GOOGLE,
+        callbackURL: config.CALLBACK_URL_GOOGLE
     }, async (_accessToken, _refreshToken, profile, done) => {
         try {
             const email = profile.emails[0].value;

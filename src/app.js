@@ -2,6 +2,9 @@
 const express = require('express')
 const expressHandlebars = require("express-handlebars")
 
+//importo las variables de entorno
+const config = require('./config/config')
+
 const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
 
@@ -12,7 +15,6 @@ const passport = require('passport')
 const initializeStrategy = require('./config/passport.config')
 
 //definir paquetes y config de mongo
-const { dbName, mongoUrl } = require('./dbConfig')
 const sessionMiddleware = require('./session/mongoStorage')
 
 //definir los routers
@@ -89,11 +91,11 @@ const main = async () => {
 
     let httpServer
     //configurar mongoose
-    await mongoose.connect(mongoUrl, { dbName })
+    await mongoose.connect(config.MONGO_URL, { dbName : config.DBNAME })
         .then(() => {
             //crear un servidor HTTP
-            httpServer = app.listen(8080, () => {
-                console.log('Servidor listo escuchando en el puerto 8080')
+            httpServer = app.listen(config.PORT, () => {
+                console.log(`Servidor listo escuchando en el puerto ${config.PORT}`)
             });
 
         })
