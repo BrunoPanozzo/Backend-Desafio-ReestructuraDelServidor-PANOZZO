@@ -1,4 +1,6 @@
 const { Router } = require('express')
+const jwt = require('jsonwebtoken')
+const { config } = require('dotenv')
 
 class BaseRouter {
     constructor() {
@@ -14,24 +16,24 @@ class BaseRouter {
         // va implementado en las clases hijas
     }
 
-    get(path, ...callbacks) {
+    get(path, policies, ...callbacks) {
         // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.get(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
+        this.router.get(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
     }
 
-    post(path, ...callbacks) {
+    post(path, policies, ...callbacks) {
         // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.post(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
-    }
-    
-    put(path, ...callbacks) {
-        // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.put(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
+        this.router.post(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
     }
 
-    delete(path, ...callbacks) {
+    put(path, policies, ...callbacks) {
         // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.delete(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
+        this.router.put(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
+    }
+
+    delete(path, policies, ...callbacks) {
+        // llamamos al router de express con el path, pero customizamos los callbacks
+        this.router.delete(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
     }
 
     customizeCallbacks(callbacks) {
@@ -52,17 +54,44 @@ class BaseRouter {
         })
     }
 
-    generatecustomResponse (req, res, next) {
-        res.sendSuccess = payload => res.send({status: 'success', payload})
-        res.sendCreated= payload => res.status(201).send({status: 'success', payload})
+    generatecustomResponse(req, res, next) {
+        res.sendSuccess = payload => res.send({ status: 'success', payload })
+        res.sendCreated = payload => res.status(201).send({ status: 'success', payload })
 
-        res.sendUserError = error => res.status(400).send({status: 'error', error})
-        res.sendUnauthorizedError = error => res.status(401).send({status: 'error', error})
-        res.sendNotFoundError = error => res.status(404).send({status: 'error', error})
+        res.sendUserError = error => res.status(400).send({ status: 'error', error })
+        res.sendUnauthorizedError = error => res.status(401).send({ status: 'error', error })
+        res.sendNotFoundError = error => res.status(404).send({ status: 'error', error })
 
-        res.sendServerError= error => res.status(500).send({status: 'error', error})
+        res.sendServerError = error => res.status(500).send({ status: 'error', error })
 
         next()
+    }
+
+    handlePolicies(policies) {
+        return (req, res, next) => {
+            if (policies.includes('PUBLIC')) //cualquiera puede entrar
+                return next()
+
+            const authHeader = req.headers.authorization
+            if (!authHeader) {
+                // return res.status(401).send({ status: 'error', error: 'Unauthorized' })
+                return res.sendUnauthorizedError('Unauthorized')
+            }
+
+            const [, token] = authHeader.split(' ')
+            jwt.verify(token, config.SECRET, (err, payload) => {
+                if (err) {
+                    return res.status(403).send({ status: 'error', error: 'Invalid token' })
+                }
+
+                if (!policies.includes(payload.rol.toUpperCase())) {
+                    return res.status(403).send({ status: 'error', error: 'Wrong permissions' })
+                }
+
+                req.user = payload
+                next()
+            })
+        }
     }
 }
 
