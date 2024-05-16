@@ -15,4 +15,6 @@ module.exports = {
     CLIENT_ID_GOOGLE:process.env.CLIENT_ID_GOOGLE,
     CLIENT_SECRET_GOOGLE:process.env.CLIENT_SECRET_GOOGLE,
     CALLBACK_URL_GOOGLE:process.env.CALLBACK_URL_GOOGLE,
+    ADMIN_USER:process.env.ADMIN_USER,
+    ADMIN_USER_PASS:process.env.ADMIN_USER_PASS
 }

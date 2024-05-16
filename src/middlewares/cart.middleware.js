@@ -1,3 +1,5 @@
+const { esPositivo } = require('../middlewares/product.middleware')
+
 module.exports = {
     validateNewCart: async (req, res, next) => {
         try {
@@ -12,7 +14,7 @@ module.exports = {
                     return
                 }
                 //valido además que su campo quantity sea un valor positivo
-                if (!productManager.esPositivo(producto.quantity)) {
+                if (!esPositivo(producto.quantity)) {
                     res.status(400).json({ error: `El valor de quantity del producto con ID '${producto._id}' es inválido.` })
                     return
                 }
@@ -27,13 +29,7 @@ module.exports = {
     validateCart: async (req, res, next) => {
         try {
             const cartManager = req.app.get('cartManager')
-            let cartId = req.params.cid;
-
-            // if (isNaN(cartId)) {
-            //     // HTTP 400 => hay un error en el request o alguno de sus parámetros
-            //     res.status(400).json({ error: "Formato inválido del ID del carrito." })
-            //     return
-            // }
+            let cartId = req.params.cid;            
 
             const cart = await cartManager.getCartById(cartId)
             if (!cart) {

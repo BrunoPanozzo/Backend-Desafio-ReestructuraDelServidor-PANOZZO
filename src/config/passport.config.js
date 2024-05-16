@@ -77,7 +77,7 @@ const initializeStrategy = () => {
 
             //verifico si es el usuario "ADMIN"
             let user
-            if (username === "adminCoder@coder.com" && password === "adminCod3r123") {
+            if (username === config.ADMIN_USER && password === config.ADMIN_USER_PASS) {
                 user = {
                     rol: "admin",
                     firstName: "Coder",
@@ -126,7 +126,7 @@ const initializeStrategy = () => {
 
             //verifico si es el usuario "ADMIN", no se le puede cambiar la pass
             let user
-            if (username === "adminCoder@coder.com") {
+            if (username === config.ADMIN_USER) {
                 return done(null, false)
             }
 
@@ -168,7 +168,7 @@ const initializeStrategy = () => {
                 age: 30,
                 email: profile._json.email,
                 password: '',
-                cart: ''
+                cart: null
             }
             const result = await userModel.create(newUser)
             done(null, result)
@@ -214,7 +214,7 @@ const initializeStrategy = () => {
     // simplemente se usa su id
     passport.serializeUser((user, done) => {
         // console.log('serialized!', user)
-        if (user.email === "adminCoder@coder.com") {
+        if (user.email === config.ADMIN_USER) {
             // Serialización especial para el usuario 'adminCoder@coder.com'
             done(null, { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.rol });
         } else {
@@ -226,7 +226,7 @@ const initializeStrategy = () => {
     // el cual colocará en req.user para que podamos usarlo
     passport.deserializeUser(async (id, done) => {
         // console.log('deserialized!', id)
-        if (id.email === 'adminCoder@coder.com') {
+        if (id.email === config.ADMIN_USER) {
             // Deserialización especial para el usuario 'adminCoder@coder.com'
             done(null, id);
         } else {

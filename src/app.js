@@ -18,13 +18,18 @@ const initializeStrategy = require('./config/passport.config')
 const sessionMiddleware = require('./session/mongoStorage')
 
 //definir los routers
-const productRouter = require('./routes/products.router')
-const cartRouter = require('./routes/carts.router')
-const viewsRouter = require('./routes/views.router')
+const CartRouter = require('./routes/carts.router')
+const cartRouter = new CartRouter()
+const ProductRouter = require('./routes/products.router')
+const productRouter = new ProductRouter()
+const ViewsRouter = require('./routes/views.router')
+const viewsRouter = new ViewsRouter()
 
-//definir sessiony y jwt routers
-const sessionsRouter = require('./routes/session.router')
-const jwtRouter = require('./routes/jwt.router')
+//definir session  y jwt routers
+const SessionsRouter = require('./routes/session.router')
+const sessionsRouter = new SessionsRouter()
+const JwtRouter = require('./routes/jwt.router')
+const jwtRouter = new JwtRouter()
 
 //definir los Managers y Modelos
 const fsProductManager = require('./dao/fsManagers/ProductManager')
@@ -71,11 +76,11 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 //configurar los routers
-app.use('/api/products', productRouter)
-app.use('/api/carts', cartRouter)
-app.use('/api/sessions', sessionsRouter)
-app.use('/', viewsRouter)
-app.use('/api', jwtRouter)
+app.use('/api/products', productRouter.getRouter())
+app.use('/api/carts', cartRouter.getRouter())
+app.use('/api/sessions', sessionsRouter.getRouter())
+app.use('/', viewsRouter.getRouter())
+app.use('/api', jwtRouter.getRouter())
 
 // app.get('/', (req, res) => {
 //     if (req.session.counter) {

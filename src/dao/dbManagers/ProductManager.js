@@ -35,86 +35,6 @@ class ProductManager {
         return ProductManager.#lastID_Product;
     }
 
-    //validar un string permitiendo solo números y letras
-    #soloLetrasYNumeros = (cadena) => {
-        return (/^[a-zA-Z0-9]+$/.test(cadena))
-    }
-
-    //validar permitiendo solo números positivos
-    #soloNumerosPositivos = (cadena) => {
-        return ((/^[0-9]+$/.test(cadena)) && (+cadena > 0))
-    }
-
-    //validar permitiendo solo números positivos, más el cero
-    #soloNumerosPositivos_Y_Cero = (cadena) => {
-        return ((/^[0-9]+$/.test(cadena)) && (+cadena >= 0))
-    }
-
-    //métodos públicos
-
-    //validar que un numero sea estrictamente positivo, incluido el 0
-    esPositivo = (cadena) => {
-        return this.#soloNumerosPositivos_Y_Cero(cadena)
-    }
-
-    //     //validar los campos de un "objeto" producto
-    validateProduct = (title, description, price, thumbnail, code, stock, status, category) => {
-        //validar que el campo "title" no esté vacío        
-        if (title.trim().length <= 0) {
-            console.error("El campo \"title\" es inválido")
-            return false
-        }
-        //validar que el campo "description" no esté vacío
-        if (description.trim().length <= 0) {
-            console.error("El campo \"description\" es inválido")
-            return false
-        }
-        //validar que el campo "price" contenga sólo números
-        if ((!this.#soloNumerosPositivos(price)) || (typeof price != "number")) {
-            console.error("El campo \"price\" no es un número positivo")
-            return false
-        }
-        //el campo "thumbnail" puede estar vacío, por eso queda comentado la validacion anterior, solo
-        //verificar que es un arreglo de strings
-        // if (thumbnail.trim().length <= 0) {
-        //     console.error("El campo \"thumbnail\" es inválido")
-        //     return false
-        // 
-        if (!Array.isArray(thumbnail)) {
-            return false
-        }
-        else {
-            let pos = -1
-            do {
-                pos++
-            } while ((pos < thumbnail.length) && (typeof thumbnail[pos] == "string"));
-            if (pos != thumbnail.length)
-                return false
-        }
-        //validar que el campo "status" sea booleano
-        if (typeof status != "boolean") {
-            console.error("El campo \"status\" no es booleano")
-            return false
-        }
-        //validar que el campo "category"  no esté vacío
-        if (category.trim().length <= 0) {
-            console.error("El campo \"category\" es inválido")
-            return false
-        }
-        //validar que el campo "code" contenga sólo números y letras
-        const codeAValidar = code.trim()
-        if ((codeAValidar.length <= 0) || (!this.#soloLetrasYNumeros(codeAValidar))) {
-            console.error("El campo \"code\" es inválido")
-            return false
-        }
-        //validar que el campo "stock" contenga sólo números
-        if ((!this.#soloNumerosPositivos_Y_Cero(stock)) || (typeof stock != "number")) {
-            console.error("El campo \"stock\" no es un número")
-            return false
-        }
-        return true
-    }
-
     getProducts = async (filters) => {
         try {
             let filteredProducts = await productModel.find()
@@ -187,7 +107,6 @@ class ProductManager {
     }
 
     addProduct = async (title, description, price, thumbnail, code, stock, status, category) => {
-        // console.log(this.#getNuevoID())
         let product = await productModel.create({
             id: this.#getNuevoID(),
             title,
