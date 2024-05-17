@@ -1,6 +1,7 @@
 const { Router } = require('express')
 const jwt = require('jsonwebtoken')
 const { config } = require('dotenv')
+const { PUBLIC } = require('../config/policies.constants')
 
 class BaseRouter {
     constructor() {
@@ -69,7 +70,7 @@ class BaseRouter {
 
     handlePolicies(policies) {
         return (req, res, next) => {
-            if (policies.includes('PUBLIC')) //cualquiera puede entrar
+            if (policies.includes(PUBLIC)) //cualquiera puede entrar
                 return next()
 
             const authHeader = req.headers.authorization
@@ -84,7 +85,8 @@ class BaseRouter {
                     return res.status(403).send({ status: 'error', error: 'Invalid token' })
                 }
 
-                if (!policies.includes(payload.rol.toUpperCase())) {
+                let userRol = payload.rol.toUpperCase()
+                if (!policies.includes(userRol)) {
                     return res.status(403).send({ status: 'error', error: 'Wrong permissions' })
                 }
 
