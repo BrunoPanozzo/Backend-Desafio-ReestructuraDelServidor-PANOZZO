@@ -30,7 +30,7 @@ class CartRouter extends BaseRouter {
 
         //endpoints
 
-        this.get('/', async (req, res) => {
+        this.get('/', ['PUBLIC'], async (req, res) => {
             try {
                 const cartManager = req.app.get('cartManager')
                 const carts = await cartManager.getCarts()
