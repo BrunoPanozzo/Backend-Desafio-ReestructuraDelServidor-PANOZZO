@@ -1,8 +1,23 @@
 const BaseRouter = require('./router')
 
-// const ProductManager = require('../dao/fsManagers/ProductManager')
-// const productModel = require('../dao/models/product.model')
 const { userIsLoggedIn, userIsNotLoggedIn, userIsAdmin } = require('../middlewares/auth.middleware')
+
+const ProductsStorage = require('../persistence/products.storage')
+const ProductsServices = require('../services/products.service')
+const CartsStorage = require('../persistence/carts.storage')
+const CartsServices = require('../services/carts.service')
+const ViewsController = require('../controllers/views.controller')
+
+const withController = callback => {
+    return (req, res) => {
+        const productsStorage = new ProductsStorage()
+        const productsService = new ProductsServices(productsStorage)
+        const cartsStorage = new CartsStorage()
+        const cartsService = new CartsServices(cartsStorage)
+        const controller = new ViewsController(productsService, cartsService)
+        return callback(controller, req, res)
+    }
+}
 
 class ViewRouter extends BaseRouter {
     init() {
@@ -27,195 +42,34 @@ class ViewRouter extends BaseRouter {
             next()
         })
 
-        this.get('/products', userIsLoggedIn, async (req, res) => {
-            try {
-                const productManager = req.app.get('productManager')
+        this.get('/products', userIsLoggedIn, withController((controller, req, res) => controller.getProducts(req, res)))
 
-                const filteredProducts = await productManager.getProducts(req.query)
+        this.get('/products/detail/:pid', userIsLoggedIn, withController((controller, req, res) => controller.getProductDetail(req, res)))
 
-                let user = req.session.user
+        this.get('/products/addcart/:pid', userIsLoggedIn, withController((controller, req, res) => controller.addProductToCart(req, res)))
 
-                const data = {
-                    title: 'All Products',
-                    scripts: ['allProducts.js'],
-                    styles: ['home.css', 'allProducts.css'],
-                    useWS: false,
-                    user,
-                    filteredProducts
-                }
+        this.get('/carts/:cid', userIsLoggedIn, withController((controller, req, res) => controller.getCartById(req, res)))
 
-                res.render('allProducts', data)
-            }
-            catch (err) {
-                //return res.status(500).json({ message: err.message })
-                return res.sendServerError(err)
-            }
-        })
+        this.get('/realtimeproducts', userIsLoggedIn, userIsAdmin, withController((controller, req, res) => controller.getRealTimeProducts(req, res)))
 
-        this.get('/products/detail/:pid', userIsLoggedIn, async (req, res) => {
-            try {
-                const productManager = req.app.get('productManager')
-                const cartManager = req.app.get('cartManager')
-
-                const prodId = req.pid
-                const product = await productManager.getProductById(prodId)
-
-                const carts = await cartManager.getCarts()
-
-                let cid = carts[0]._id
-                let data = {
-                    title: 'Product detail',
-                    scripts: ['productDetail.js'],
-                    styles: ['home.css', 'productDetail.css'],
-                    useWS: false,
-                    useSweetAlert: true,
-                    product,
-                    cid
-                }
-
-                res.render('productDetail', data)
-            }
-            catch (err) {
-                //return res.status(500).json({ message: err.message })
-                return res.sendServerError(err)
-            }
-        })
-
-        this.get('/products/addcart/:pid', userIsLoggedIn, async (req, res) => {
-            try {
-                const productManager = req.app.get('productManager')
-                const cartManager = req.app.get('cartManager')
-
-                const prodId = req.pid
-                const product = await productManager.getProductById(prodId)
-
-                //agrego una unidad del producto al primer carrito que siempre existe
-                const carts = await cartManager.getCarts()
-                // console.log(prodId)
-                await cartManager.addProductToCart(carts[0]._id.toString(), prodId, 1);
-
-                // res.redirect(`/products/detail/${prodId}`)
-                // HTTP 200 OK => producto modificado exitosamente
-                // res.status(200).json({message: 'Producto agregado con éxito'})
-            }
-            catch (err) {
-                //return res.status(500).json({ message: err.message })
-                return res.sendServerError(err)
-            }
-        })
-
-        this.get('/carts/:cid', userIsLoggedIn, async (req, res) => {
-            try {
-                const cartManager = req.app.get('cartManager')
-                const cartId = req.cid
-                const cart = await cartManager.getCartById(cartId)
-
-                // console.log(JSON.stringify(cart.products, null, '\t'))
-
-                let data = {
-                    title: 'Cart detail',
-                    // scripts: ['cartDetail.js'],
-                    styles: ['home.css', 'cartDetail.css'],
-                    useWS: false,
-                    cart
-                }
-
-                res.render('cartDetail', data)
-            }
-            catch (err) {
-                //return res.status(500).json({ message: err.message })
-                return res.sendServerError(err)
-            }
-        })
-
-        this.get('/realtimeproducts', userIsLoggedIn, userIsAdmin, async (req, res) => {
-            const productManager = req.app.get('productManager')
-
-            let allProducts = await productManager.getProducts(req.query)
-
-            const data = {
-                title: 'Real Time Products',
-                scripts: ['allProducts.js'],
-                styles: ['home.css', 'allProducts.css'],
-                useWS: false,
-                allProducts
-            }
-
-            res.render('realtimeproducts', data)
-        })
-
-        this.get('/products/create', userIsLoggedIn, userIsAdmin, async (req, res) => {
-
-            const data = {
-                title: 'Create Product',
-                // scripts: ['createProduct.js'],
-                styles: ['home.css'],
-                useWS: false
-            }
-
-            res.render('createProduct', data)
-        })
+        this.get('/products/create', userIsLoggedIn, userIsAdmin, withController((controller, req, res) => controller.createProduct(req, res)))
 
         //endpoints de Messages
 
-        this.get('/chat', (_, res) => {
-            const data = {
-                title: 'Aplicación de chat',
-                useWS: true,
-                useSweetAlert: true,
-                scripts: ['message.js'],
-                styles: ['home.css']
-            }
-
-            res.render('message', data)
-        })
+        this.get('/chat', withController((controller, req, res) => controller.chat(req, res)))
 
         //endpoints de Login/Register
 
-        this.get('/', (req, res) => {
-            const isLoggedIn = ![null, undefined].includes(req.session.user)
+        this.get('/', withController((controller, req, res) => controller.home(req, res)))
 
-            res.render('index', {
-                title: 'Inicio',
-                isLoggedIn,
-                isNotLoggedIn: !isLoggedIn,
-            })
-        })
+        this.get('/login', userIsNotLoggedIn, withController((controller, req, res) => controller.login(req, res)))
+        
+        this.get('/reset_password', userIsNotLoggedIn, withController((controller, req, res) => controller.resetPassword(req, res)))
 
-        this.get('/login', userIsNotLoggedIn, (_, res) => {
-            // sólo se puede acceder si NO está logueado
-            res.render('login', {
-                title: 'Login'
-            })
-        })
+        this.get('/register', userIsNotLoggedIn, withController((controller, req, res) => controller.register(req, res)))
 
-        this.get('/reset_password', userIsNotLoggedIn, (_, res) => {
-            // sólo se puede acceder si NO está logueado
-            res.render('reset_password', {
-                title: 'Reset Password'
-            })
-        })
+        this.get('/profile', userIsLoggedIn, withController((controller, req, res) => controller.profile(req, res)))
 
-        this.get('/register', userIsNotLoggedIn, (_, res) => {
-            //sólo se puede acceder si NO está logueado
-            res.render('register', {
-                title: 'Register'
-            })
-        })
-
-        this.get('/profile', userIsLoggedIn, (req, res) => {
-            //sólo se puede acceder SI está logueado
-            let user = req.session.user
-            res.render('profile', {
-                title: 'Mi perfil',
-                user: {
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    age: user.age,
-                    email: user.email
-                }
-            })
-        })
     }
 }
 

@@ -26,7 +26,7 @@ const ViewsRouter = require('./routes/views.router')
 const viewsRouter = new ViewsRouter()
 
 //definir session  y jwt routers
-const SessionsRouter = require('./routes/session.router')
+const SessionsRouter = require('./routes/sessions.router')
 const sessionsRouter = new SessionsRouter()
 const JwtRouter = require('./routes/jwt.router')
 const jwtRouter = new JwtRouter()
