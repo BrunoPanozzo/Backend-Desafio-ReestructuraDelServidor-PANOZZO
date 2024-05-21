@@ -32,10 +32,10 @@ const JwtRouter = require('./routes/jwt.router')
 const jwtRouter = new JwtRouter()
 
 //definir los Managers y Modelos
-const fsProductManager = require('./dao/fsManagers/ProductManager')
-const fsCartManager = require('./dao/fsManagers/CartManager')
-const dbProductManager = require('./dao/dbManagers/ProductManager')
-const dbCartManager = require('./dao/dbManagers/CartManager')
+// const fsProductManager = require('./dao/fsManagers/ProductManager')
+// const fsCartManager = require('./dao/fsManagers/CartManager')
+// const dbProductManager = require('./dao/dbManagers/ProductManager')
+// const dbCartManager = require('./dao/dbManagers/CartManager')
 const dbMessageManager = require('./dao/dbManagers/MessageManager')
 
 //instanciar mi app
@@ -117,12 +117,12 @@ const main = async () => {
     // app.set('cartManager', cartManager)    
 
     //Manager con DataBaseSystem
-    const productManager = new dbProductManager()
-    await productManager.inicializar()
-    app.set('productManager', productManager)
-    const cartManager = new dbCartManager()
-    await cartManager.inicializar()
-    app.set('cartManager', cartManager)
+    // const productManager = new dbProductManager()
+    // await productManager.inicializar()
+    // app.set('productManager', productManager)
+    // const cartManager = new dbCartManager()
+    // await cartManager.inicializar()
+    // app.set('cartManager', cartManager)
 
     //Manager del chat
     const messageManager = new dbMessageManager()

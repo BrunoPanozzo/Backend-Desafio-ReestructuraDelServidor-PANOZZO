@@ -2,13 +2,25 @@ const BaseRouter = require('./router')
 
 const { validateNewProduct, validateUpdateProduct, validateProduct } = require('../middlewares/product.middleware')
 
+const ProductsController = require('../controllers/products.controller')
+const ProductsStorage = require('../persistence/products.storage')
+const ProductsServices = require('../services/products.service')
+
+const withController = callback => {
+    return (req, res) => {
+        const storage = new ProductsStorage()
+        const service = new ProductsServices(storage)
+        const controller = new ProductsController(service)
+        return callback(controller, req, res)
+    }
+}
 
 class ProductRouter extends BaseRouter {
     init() {
 
         //param validations
 
-        this.param('pid', (req, res, next, value) => {
+        this.router.param('pid', (req, res, next, value) => {
             const isValid = /^[a-z0-9]+$/.test(value)
             if (!isValid)
                 // return res.status(400).send('Parámetro inválido')
@@ -19,41 +31,7 @@ class ProductRouter extends BaseRouter {
 
         //endpoints
 
-        this.get('/', async (req, res) => {
-            try {
-                const productManager = req.app.get('productManager')
-
-                const filteredProducts = await productManager.getProducts(req.query)
-
-                const result = {
-                    payload: filteredProducts.totalDocs,
-                    totalPages: filteredProducts.totalPages,
-                    prevPage: filteredProducts.prevPage,
-                    nextPage: filteredProducts.nextPage,
-                    page: filteredProducts.page,
-                    hasPrevPage: filteredProducts.hasPrevPage,
-                    hasNextPage: filteredProducts.hasNextPage,
-                    prevLink: filteredProducts.hasPrevPage ? `/products?page=${filteredProducts.prevPage}` : null,
-                    nextlink: filteredProducts.hasNextPage ? `/products?page=${filteredProducts.nextPage}` : null
-                }
-
-                let status = 'success'
-                if (filteredProducts.docs.length == 0)
-                    status = 'error'
-                let finalResult = {
-                    status,
-                    ...result
-                }
-
-                // HTTP 200 OK
-                // return res.status(200).json(finalResult)
-                return res.sendSuccess(finalResult)
-            }
-            catch (err) {
-                //return res.status(500).json({ error: err })
-                return res.sendServerError(err)
-            }
-        })
+        this.get('/', withController((controller, req, res) => controller.getProducts(req, res)))
 
         this.get('/:pid', validateProduct, async (req, res) => {
             try {
@@ -135,7 +113,7 @@ class ProductRouter extends BaseRouter {
             }
         })
 
-        router.delete('/:pid', validateProduct, async (req, res) => {
+        this.delete('/:pid', validateProduct, async (req, res) => {
             try {
                 const productManager = req.app.get('productManager')
                 const prodId = req.pid

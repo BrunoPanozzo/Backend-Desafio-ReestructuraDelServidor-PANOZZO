@@ -1,3 +1,9 @@
+const ProductsStorage = require('../persistence/products.storage')
+const ProductsServices = require('../services/products.service')
+
+const productsStorage = new ProductsStorage()
+const productsServices = new ProductsServices(productsStorage)
+
 //validar un string permitiendo solo números y letras
 const soloLetrasYNumeros = (cadena) => {
     return (/^[a-zA-Z0-9]+$/.test(cadena))
@@ -78,7 +84,6 @@ const validateProductData = (title, description, price, thumbnail, code, stock, 
 
 const validateNewProduct = async (req, res, next) => {
     try {
-        const productManager = req.app.get('productManager')
         const product = req.body
 
         product.thumbnail = [product.thumbnail]
@@ -96,7 +101,7 @@ const validateNewProduct = async (req, res, next) => {
             product.status,
             product.category)) {
             //debo verificar también que el campo "code" no se repita
-            const prod = await productManager.getProductByCode(product.code)
+            const prod = await productsServices.getProductByCode(product.code)
             if (prod) {
                 let msjeError = `No se permite agregar el producto con código '${product.code}' porque ya existe.`
                 // HTTP 400 => code repetido
@@ -116,13 +121,11 @@ const validateNewProduct = async (req, res, next) => {
 
 const validateUpdateProduct = async (req, res, next) => {
     try {
-        const productManager = req.app.get('productManager')
-
         const prodId = req.params.pid
         const product = req.body
 
         //primero debo verificar que el producto exista en mi array de todos los productos
-        const prod = await productManager.getProductById(prodId)
+        const prod = await productsServices.getProductById(prodId)
         if (!prod) {
             // HTTP 404 => no existe el producto
             res.status(404).json({ error: `El producto con ID '${prodId}' no se puede modificar porque no existe.` })
@@ -138,7 +141,7 @@ const validateUpdateProduct = async (req, res, next) => {
             product.status,
             product.category)) {
             //verifico que el campo "code", que puede venir modificado, no sea igual al campo code de otros productos ya existentes
-            let allProducts = await productManager.getProducts(req.query)
+            let allProducts = await productsServices.getProducts(req.query)
             let producto = allProducts.docs.find(element => ((element.code === product.code) && (element._id != prodId)))
             if (producto) {
                 let msjeError = `No se permite modificar el producto con código '${product.code}' porque ya existe.`
@@ -160,11 +163,10 @@ const validateUpdateProduct = async (req, res, next) => {
 
 const validateProduct = async (req, res, next) => {
     try {
-        const productManager = req.app.get('productManager')
         let prodId = req.params.pid;
         
         //primero debo verificar que el producto exista en mi array de todos los productos
-        const prod = await productManager.getProductById(prodId)
+        const prod = await productsServices.getProductById(prodId)
         if (!prod) {
             // HTTP 404 => no existe el producto
             res.status(404).json({ error: `El producto con ID '${prodId}' no existe.` })

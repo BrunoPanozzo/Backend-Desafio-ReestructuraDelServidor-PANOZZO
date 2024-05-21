@@ -1,14 +1,23 @@
 const { esPositivo } = require('../middlewares/product.middleware')
 
+const CartsStorage = require('../persistence/carts.storage')
+const CartsServices = require('../services/carts.service')
+const ProductsStorage = require('../persistence/products.storage')
+const ProductsServices = require('../services/products.service')
+
+const cartsStorage = new CartsStorage()
+const cartsServices = new CartsServices(cartsStorage)
+const productsStorage = new ProductsStorage()
+const productsServices = new ProductsServices(productsStorage)
+
 module.exports = {
     validateNewCart: async (req, res, next) => {
         try {
-            const productManager = req.app.get('productManager')
             const { products } = req.body
 
             //valido que cada producto que quiero agregar a un carrito exista y que su quantity sea un valor positivo
             products.forEach(async producto => {
-                const prod = await productManager.getProductById(producto._id)
+                const prod = await productsServices.getProductById(producto._id)
                 if (!prod) {
                     res.status(400).json({ error: `No se puede crear el carrito porque no existe el producto con ID '${producto._id}'.` })
                     return
@@ -28,10 +37,9 @@ module.exports = {
     },
     validateCart: async (req, res, next) => {
         try {
-            const cartManager = req.app.get('cartManager')
             let cartId = req.params.cid;            
 
-            const cart = await cartManager.getCartById(cartId)
+            const cart = await cartsServices.getCartById(cartId)
             if (!cart) {
                 res.status(400).json({ error: `No existe el carrito con ID '${cartId}'.` })
                 return

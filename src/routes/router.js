@@ -17,24 +17,24 @@ class BaseRouter {
         // va implementado en las clases hijas
     }
 
-    get(path, policies, ...callbacks) {
+    get(path, ...callbacks) {
         // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.get(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
+        this.router.get(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
     }
 
-    post(path, policies, ...callbacks) {
+    post(path, ...callbacks) {
         // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.post(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
+        this.router.post(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
     }
 
-    put(path, policies, ...callbacks) {
+    put(path, ...callbacks) {
         // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.put(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
+        this.router.put(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
     }
 
-    delete(path, policies, ...callbacks) {
+    delete(path, ...callbacks) {
         // llamamos al router de express con el path, pero customizamos los callbacks
-        this.router.delete(path, this.handlePolicies(policies), this.generatecustomResponse, this.customizeCallbacks(callbacks))
+        this.router.delete(path, this.generatecustomResponse, this.customizeCallbacks(callbacks))
     }
 
     customizeCallbacks(callbacks) {
@@ -47,6 +47,8 @@ class BaseRouter {
                 // en el 2do argumento, viene un array de parámetros que usa el callback
                 await callback.apply(this, params)
             } catch (err) {
+                console.log(err) 
+
                 // nuestra función flecha es un middleware también, entonces sabemos que params será [req, res, next]
                 const [, res,] = params
                 //res.status(500).send(err)

@@ -9,7 +9,7 @@ class ViewRouter extends BaseRouter {
 
         //endpoints de Products y Carts
 
-        this.param('pid', (req, res, next, value) => {
+        this.router.param('pid', (req, res, next, value) => {
             const isValid = /^[a-z0-9]+$/.test(value)
             if (!isValid)
                 //return res.status(400).send('Parámetro inválido')
@@ -18,7 +18,7 @@ class ViewRouter extends BaseRouter {
             next()
         })
 
-        this.param('cid', (req, res, next, value) => {
+        this.router.param('cid', (req, res, next, value) => {
             const isValid = /^[a-z0-9]+$/.test(value)
             if (!isValid)
                 //return res.status(400).send('Parámetro inválido')
@@ -219,4 +219,4 @@ class ViewRouter extends BaseRouter {
     }
 }
 
-module.exports = router;
+module.exports = ViewRouter;
