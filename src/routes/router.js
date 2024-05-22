@@ -4,6 +4,7 @@ const { config } = require('dotenv')
 const { PUBLIC } = require('../config/policies.constants')
 
 class BaseRouter {
+
     constructor() {
         this.router = Router()
 
@@ -11,18 +12,18 @@ class BaseRouter {
 
         this.router.param('pid', (req, res, next, value) => {
             const isValid = /^[a-z0-9]+$/.test(value)
-            if (!isValid) 
+            if (!isValid)
                 return res.status(400).send('Parámetro inválido')
-                //return res.sendUserError('Parámetro inválido')                
+            //return res.sendUserError('Parámetro inválido')                
             req.pid = value
             next()
         })
 
         this.router.param('cid', (req, res, next, value) => {
             const isValid = /^[a-z0-9]+$/.test(value)
-            if (!isValid) 
+            if (!isValid)
                 return res.status(400).send('Parámetro inválido')
-                //return res.sendUserError('Parámetro inválido')                 
+            //return res.sendUserError('Parámetro inválido')                 
             req.cid = value
             next()
         })
@@ -68,7 +69,7 @@ class BaseRouter {
                 // en el 2do argumento, viene un array de parámetros que usa el callback
                 await callback.apply(this, params)
             } catch (err) {
-                console.log(err) 
+                console.log(err)
 
                 // nuestra función flecha es un middleware también, entonces sabemos que params será [req, res, next]
                 const [, res,] = params
