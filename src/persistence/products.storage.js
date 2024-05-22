@@ -102,7 +102,7 @@ class ProductsStorage {
     }
 
     async deleteProduct(prodId) {
-        await productModel.deleteOne({ _id: idProd })
+        await productModel.deleteOne({ _id: prodId })
     }
 
 }

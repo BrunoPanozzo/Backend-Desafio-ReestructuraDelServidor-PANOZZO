@@ -2,11 +2,11 @@ const mongoose = require('mongoose')
 const mongoosePaginate = require('mongoose-paginate-v2')
 
 const productSchema = new mongoose.Schema({   
-    id: {
-        type: Number,
-        required : true,
-        unique: true
-    },
+    // id: {
+    //     type: Number,
+    //     required : true,
+    //     unique: true
+    // },
     title: {
         type: String,
         required : true

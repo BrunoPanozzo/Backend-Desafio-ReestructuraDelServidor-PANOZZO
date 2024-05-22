@@ -29,7 +29,7 @@ class JwtController {
         try {
             const { email, password } = req.body
 
-            const user = this.service.login(email, password)
+            const user = await this.service.login(email, password)
 
             const credentials = { id: user._id.toString(), email: user.email, rol: user.rol }
             const accessToken = generateToken(credentials)

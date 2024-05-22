@@ -7,8 +7,13 @@ class ProductsServices {
     async getProducts(filters) {
         return await this.storage.getProducts(filters)
     }
+
     async getProductById(prodId) {
         return await this.storage.getProductById(prodId)
+    }
+    
+    async getProductByCode(prodCode) {
+        return await this.storage.getProductByCode(prodCode)
     }
 
     async addProduct(title,
