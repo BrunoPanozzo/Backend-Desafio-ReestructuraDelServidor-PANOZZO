@@ -3,7 +3,7 @@ class SessionsController {
     constructor() {
     }
 
-    login(req, res) {
+    login (req, res) {
         if (!req.user)
             //return res.status(400).send({ status: 'error', error: 'Credenciales inválidas!' })
             return res.sendUserError('Credenciales inválidas!')
@@ -13,7 +13,8 @@ class SessionsController {
             firstName: req.user.firstName,
             lastName: req.user.lastName,
             email: req.user.email,
-            rol: req.user.rol
+            rol: req.user.rol,
+            cart: req.user.cart
         }
 
         // no es necesario validar el login aquí, ya lo hace passport!
@@ -71,7 +72,8 @@ class SessionsController {
                 firstName: req.user.firstName,
                 lastName: req.user.lastName,
                 email: req.user.email,
-                rol: req.user.rol
+                rol: req.user.rol, 
+                cart: req.user.cart
             }
 
             // no es necesario validar el login aquí, ya lo hace passport!
@@ -94,7 +96,8 @@ class SessionsController {
             firstName: req.user.firstName,
             lastName: req.user.lastName,
             email: req.user.email,
-            rol: req.user.rol
+            rol: req.user.rol, 
+            cart: req.user.cart
         }
 
         // no es necesario validar el login aquí, ya lo hace passport!

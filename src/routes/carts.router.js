@@ -16,31 +16,10 @@ const withController = callback => {
     }
 }
 
+
 class CartRouter extends BaseRouter {
+    
     init() {
-
-        //param validations
-
-        this.router.param('pid', (req, res, next, value) => {
-            const isValid = /^[a-z0-9]+$/.test(value)
-            if (!isValid)
-                // return res.status(400).send('Parámetro inválido')
-                return res.sendUserError('Parámetro inválido')  
-            req.pid = value
-            next()
-        })
-
-        this.router.param('cid', (req, res, next, value) => {
-            const isValid = /^[a-z0-9]+$/.test(value)
-            if (!isValid)
-                // return res.status(400).send('Parámetro inválido')
-                return res.sendUserError('Parámetro inválido')
-            req.cid = value
-            next()
-        })
-
-        //endpoints
-
         this.get('/', withController((controller, req, res) => controller.getCarts(req, res)))
 
         this.get('/:cid', validateCart, withController((controller, req, res) => controller.getCartById(req, res)))

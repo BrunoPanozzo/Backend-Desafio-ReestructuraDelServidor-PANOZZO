@@ -23,25 +23,7 @@ class ViewRouter extends BaseRouter {
     init() {
 
         //endpoints de Products y Carts
-
-        this.router.param('pid', (req, res, next, value) => {
-            const isValid = /^[a-z0-9]+$/.test(value)
-            if (!isValid)
-                //return res.status(400).send('Parámetro inválido')
-                return res.sendUserError('Parámetro inválido')
-            req.pid = value
-            next()
-        })
-
-        this.router.param('cid', (req, res, next, value) => {
-            const isValid = /^[a-z0-9]+$/.test(value)
-            if (!isValid)
-                //return res.status(400).send('Parámetro inválido')
-                return res.sendUserError('Parámetro inválido')
-            req.cid = value
-            next()
-        })
-
+        
         this.get('/products', userIsLoggedIn, withController((controller, req, res) => controller.getProducts(req, res)))
 
         this.get('/products/detail/:pid', userIsLoggedIn, withController((controller, req, res) => controller.getProductDetail(req, res)))

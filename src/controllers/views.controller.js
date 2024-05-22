@@ -224,6 +224,7 @@ class ViewsController {
             return res.sendServerError(err)
         }
     }
+    
 }
 
 module.exports = ViewsController

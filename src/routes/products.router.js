@@ -17,20 +17,6 @@ const withController = callback => {
 
 class ProductRouter extends BaseRouter {
     init() {
-
-        //param validations
-
-        this.router.param('pid', (req, res, next, value) => {
-            const isValid = /^[a-z0-9]+$/.test(value)
-            if (!isValid)
-                // return res.status(400).send('Parámetro inválido')
-                return res.sendUserError('Parámetro inválido')
-            req.pid = value
-            next()
-        })
-
-        //endpoints
-
         this.get('/', withController((controller, req, res) => controller.getProducts(req, res)))
 
         this.get('/:pid', validateProduct, withController((controller, req, res) => controller.getProductById(req, res)))

@@ -47,9 +47,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // configurar handlebars como nuestro template engine por defecto
-// app.engine('handlebars', handlebars.engine())
-// app.set('views', `${__dirname}/views`)
-// app.set('view engine', 'handlebars')
 const handlebars = expressHandlebars.create({
     defaultLayout: "main",
     handlebars: require("handlebars"),
@@ -82,19 +79,10 @@ app.use('/api/sessions', sessionsRouter.getRouter())
 app.use('/', viewsRouter.getRouter())
 app.use('/api', jwtRouter.getRouter())
 
-// app.get('/', (req, res) => {
-//     if (req.session.counter) {
-//         req.session.counter++
-//         return res.send(`Esta es su visita nro. ${req.session.counter}`)
-//     }
-
-//     req.session.counter = 1
-//     res.send('Bienvenido! Esta es su primer visita!')
-// })
-
 const main = async () => {
 
     let httpServer
+
     //configurar mongoose
     await mongoose.connect(config.MONGO_URL, { dbName : config.DBNAME })
         .then(() => {
@@ -140,16 +128,6 @@ const main = async () => {
 
         // clientSocket.on('saludo', (data) => {
         //     console.log(data)
-        // })
-
-        // clientSocket.on('deleteProduct', async (idProd) => {
-        //     const id = parseInt(idProd)
-        //     await productManager.deleteProduct(id)
-
-        //     console.log(`El producto con código '${id}' se eliminó exitosamente.`)
-        //     //avisar a todos los clientes
-        //     io.emit('deleteProduct', idProd)
-
         // })
 
         //sección de MESSAGES

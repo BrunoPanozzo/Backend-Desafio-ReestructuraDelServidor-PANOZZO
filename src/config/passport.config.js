@@ -216,7 +216,7 @@ const initializeStrategy = () => {
         // console.log('serialized!', user)
         if (user.email === config.ADMIN_USER) {
             // Serialización especial para el usuario 'adminCoder@coder.com'
-            done(null, { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.rol });
+            done(null, { _id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, rol: user.rol, cart: user.cart });
         } else {
             done(null, user._id)
         }

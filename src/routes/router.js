@@ -6,6 +6,27 @@ const { PUBLIC } = require('../config/policies.constants')
 class BaseRouter {
     constructor() {
         this.router = Router()
+
+        //param validations        
+
+        this.router.param('pid', (req, res, next, value) => {
+            const isValid = /^[a-z0-9]+$/.test(value)
+            if (!isValid) 
+                return res.status(400).send('Parámetro inválido')
+                //return res.sendUserError('Parámetro inválido')                
+            req.pid = value
+            next()
+        })
+
+        this.router.param('cid', (req, res, next, value) => {
+            const isValid = /^[a-z0-9]+$/.test(value)
+            if (!isValid) 
+                return res.status(400).send('Parámetro inválido')
+                //return res.sendUserError('Parámetro inválido')                 
+            req.cid = value
+            next()
+        })
+
         this.init()
     }
 
@@ -14,7 +35,7 @@ class BaseRouter {
     }
 
     init() {
-        // va implementado en las clases hijas
+        // va implementado en las clases hijas        
     }
 
     get(path, ...callbacks) {
